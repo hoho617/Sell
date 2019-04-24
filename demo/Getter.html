@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vuex--Getter</title>
+  <script src="../node_modules/vue/dist/vue.js"></script>
+  <script src="../node_modules/vuex/dist/vuex.js"></script>
+</head>
+<body>
+<div id="app">
+  <h2>Vuex--Getter</h2>
+  <button @click="add">点击</button>
+  <counter></counter>
+</div>
+<script>
+  const counter = { //定义组件
+    template:`
+       <div>
+          <div>点击数量:{{count}}</div>
+          <div>用户名:{{name}}</div>
+          <div>姓名:{{userName}}</div>
+        </div>
+      `,
+    computed:{ //vuex中的state值 必须用在computed中
+      count(){
+        return this.$store.state.count;
+      },
+      name(){
+        return this.$store.state.name;
+      },
+      userName(){
+        return this.$store.getters.userName;
+      }
+    }
+  }
+
+
+  //定义 vuex
+  const store = new Vuex.Store({
+    state:{
+      count:10,
+      name:'jack'
+    },
+    getters:{
+      userName(state){
+        return 'user' + state.name
+      }
+    },
+    mutations:{
+      increment(state){
+        state.count  ++;
+      },
+      updateName(state,name){
+        state.name = name;
+      }
+    },
+    actions:{
+      incrementAction(context){
+        context.commit('increment')
+      }
+    }
+  })
+
+
+
+
+  new Vue({
+    el:"#app",
+    store,
+    data:{
+
+    },
+    components:{
+      counter
+    },
+    methods:{
+      add(){
+        // this.$store.commit('increment')
+
+        this.$store.dispatch('incrementAction')
+        this.$store.commit('updateName','rose')
+      }
+    }
+  })
+</script>
+</body>
+</html>

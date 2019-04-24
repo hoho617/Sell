@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>演示vue-resource发送请求</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <script src="../node_modules/vue/dist/vue.min.js"></script>
+    <script src="../node_modules/vue-resource/dist/vue-resource.min.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      background-color: #37474f;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      color:#fff;
+    }
+    .solar-system {
+      width: 250px;
+      height: 250px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .orbit {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid #ffffffa5;
+      border-radius: 50%;
+    }
+
+    .earth-orbit {
+      width: 165px;
+      height: 165px;
+      -webkit-animation: spin 12s linear 0s infinite;
+    }
+
+    .venus-orbit {
+      width: 120px;
+      height: 120px;
+      -webkit-animation: spin 7.4s linear 0s infinite;
+    }
+
+    .mercury-orbit {
+      width: 90px;
+      height: 90px;
+      -webkit-animation: spin 3s linear 0s infinite;
+    }
+
+    .planet {
+      position: absolute;
+      top: -5px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #3ff9dc;
+    }
+
+    .sun {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background-color: #ffab91;
+    }
+    .spinner-box {
+      width: 300px;
+      height: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: transparent;
+    }
+    @keyframes spin {
+      from {
+        transform: rotate(0);
+      }
+      to{
+        transform: rotate(359deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h2>演示vue-resource发送请求</h2>
+    <el-row>
+      <el-button type="primary" @click="get">get请求</el-button>
+      <el-button type="success" @click="post">post请求</el-button>
+      <el-button type="info" @click="jsonp">jsonp请求</el-button>
+      <el-button type="warning" @click="http">http请求</el-button>
+    </el-row>
+    <div>{{msg}}</div>
+
+    <loading v-show="showLoading"></loading>
+    <loading-circle></loading-circle>
+  </div>
+  <template id="loading-template">
+    <div class="spinner-box">
+      <div class="solar-system">
+        <div class="earth-orbit orbit">
+          <div class="planet earth"></div>
+          <div class="venus-orbit orbit">
+            <div class="planet venus"></div>
+            <div class="mercury-orbit orbit">
+              <div class="planet mercury"></div>
+              <div class="sun"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    new Vue({
+      el:"#app",
+      data(){
+        return {
+          msg:'',
+          showLoading:false
+        }
+      },
+      components:{
+        "loading":{
+          template:"#loading-template"
+        },
+        "loading-circle":{
+          template:"#loading-circle"
+        }
+      },
+      mounted(){
+        Vue.http.interceptors.push(function (request,next) {
+          console.log('request init.');
+          this.showLoading = true;
+          next(function (response) {
+            this.showLoading = false;
+            console.log('response init.');
+            return response;
+          })
+        })
+      },
+      http:{
+        root:'http://localhost:63342/vue资料/sell'
+      },
+      methods:{
+          get(){
+            this.$http.get('http://www.imooc.com/course/AjaxCourseMembers?ids=796',{
+              params:{
+                userId:123
+              },
+              headers:{
+                token:"abcdefg"
+              }
+            }).then((res)=>{
+              this.msg = res.data;
+            },(err)=>{
+              this.msg = err;
+            })
+          },
+        post(){
+            this.$http.post('package.json',{
+              userId:666
+            },{
+              headers:{
+                access_token:'xxxxxx'
+              }
+            }).then((res)=>{
+              this.msg = res.data;
+            },(err)=>{
+              this.msg = err;
+            })
+        },
+        jsonp(){
+            this.$http.jsonp('http://www.imooc.com/course/AjaxCourseMembers?ids=796')
+              .then((res)=>{
+                this.msg = res.data;
+              })
+        },
+        http(){
+            this.$http({
+              url:'package.json',
+              method:'post',
+              params:{
+                userId:111
+              },
+              headers:{
+                token:'sssss'
+              },
+              timeout:5,
+              before(){
+                console.log('before send')
+              }
+            }).then((res)=>{
+              this.msg=res.data
+            })
+        }
+      }
+    })
+  </script>
+</body>
+</html>
